@@ -5,7 +5,6 @@ import { type Request, type Response } from 'express'
 import {
   loginService,
   registerService,
-  googleLoginService,
   renewService,
 } from '../services/auth.services'
 
@@ -35,23 +34,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   const { user, token } = data
   res.status(200).json({
     message: 'user signned up',
-    user,
-    token,
-  })
-}
-
-export const googleSignIn = async (
-  { body: { id_token } }: Request,
-  res: Response
-) => {
-  const data = await googleLoginService(id_token)
-  if (data == null) {
-    handleError(res, 'Something Went Wrong', {}, 400)
-    return
-  }
-  const { user, token } = data
-  res.status(200).json({
-    message: 'user logged with google',
     user,
     token,
   })

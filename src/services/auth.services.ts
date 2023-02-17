@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt'
 import UserModel from '../models/user.models'
 
 /** Utils */
-import { generateToken, googleVerify } from '../utils'
+import { generateToken } from '../utils'
 
 /** Interfaces / Types */
 import { type User } from '../interfaces/user.interface'
@@ -13,7 +13,6 @@ import {
   type LoginBody,
   type RegisterBody,
   type AuthReturnType,
-  type GooglePayload,
 } from '../interfaces/auth.interface'
 
 export const loginService = async ({
@@ -70,49 +69,5 @@ export const renewService = async (user: User): Promise<AuthReturnType> => {
   return {
     user,
     token,
-  }
-}
-
-export const googleLoginService = async (
-  id_token: string
-): Promise<AuthReturnType> => {
-  const credential = (await googleVerify(id_token)) as unknown as GooglePayload
-
-  if (!credential) throw new Error('Google verification has failed!')
-
-  const { email, given_name } = credential
-
-  try {
-    const user = await UserModel.findOne({ email })
-
-    if (user == null) {
-      const data = {
-        name: given_name,
-        username: given_name,
-        email,
-        password: ':P',
-      }
-
-      const userNew = new UserModel(data)
-
-      const userNewFinish = await userNew.save()
-
-      const token = generateToken(userNewFinish.email)
-
-      return {
-        user: userNewFinish,
-        token,
-      }
-    }
-
-    const token = generateToken(user.email)
-
-    return {
-      user,
-      token,
-    }
-  } catch (error) {
-    console.log(error)
-    return null
   }
 }
