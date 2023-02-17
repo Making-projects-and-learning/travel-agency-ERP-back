@@ -4,9 +4,10 @@ import 'dotenv/config'
 import cors from 'cors'
 import chalk from 'chalk'
 import logger from 'morgan'
+import http, { type Server as TServer } from 'http'
 
 /** Database */
-import { dbConnect } from './config'
+import { dbConnect, dbDisconnect } from './config'
 
 /** Routes */
 import { authRouter } from './routes'
@@ -28,16 +29,18 @@ declare global {
 
 export default class Server {
   private readonly app: Express
+  private readonly HttpServer: TServer
   private readonly port: string
   private readonly apiPaths = {
     auth: '/api/auth',
   }
 
   constructor() {
-    this.app = express()
     this.port = process.env.PORT ?? '8080'
+    this.app = express()
+    this.HttpServer = http.createServer(this.app)
 
-    // Initial methods
+    /** Initial methods */
     this.dbConnection()
     this.middlewares()
     this.routes()
@@ -65,10 +68,15 @@ export default class Server {
   }
 
   listen() {
-    this.app.listen(this.port, () => {
+    this.HttpServer.listen(this.port, () => {
       log.info(
         `${chalk.white('Server listening on port')} ${chalk.cyan(this.port)}`
       )
     })
+  }
+
+  async disconnect() {
+    this.HttpServer.close()
+    await dbDisconnect()
   }
 }

@@ -1,5 +1,5 @@
 /** Application */
-import Server from './app'
+import Server from './Server'
 
 /** Here we start the application */
 const server = new Server()

@@ -6,7 +6,6 @@ import { check } from 'express-validator'
 import {
   login,
   register,
-  googleSignIn,
   tokenRevalidate,
 } from '../controllers/auth.controllers'
 
@@ -143,14 +142,9 @@ router.post(
   register
 )
 
-router.post(
-  '/google',
-  [check('id_token', 'id_token is required.').not().isEmpty(), validateFields],
-  googleSignIn
-)
-
 router.get('/renew', [jwtValidate, validateFields], tokenRevalidate)
 
+/** This is an example route for the testing */
 router.get('/ping', (_req: Request, res: Response) => {
   res.send('pong')
 })
